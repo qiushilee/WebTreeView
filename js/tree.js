@@ -26,68 +26,66 @@ tree.EventAdd = function(obj, type, fn) {
 
 
 /**
- * 声明document
- * 减少作用域
- * 提升性能
+ * 减少作用域长度
  */
-var doc/*:Object*/ = document;
+var doc = document;
 
-//#tree 即树的容器
-var elm/*:Object*/ = doc.getElementById("tree");
+//树的容器
+var elm = doc.getElementById("tree");
 
 /**
  * item 树的子级
  * 诸如：二级、三级、四级
  */
-var item/*:Object*/ = elm.getElementsByTagName("li");
+var item = elm.getElementsByTagName("li");
 
-//每级树中的按钮
-var btn/*:Object*/ = elm.getElementsByTagName("a");
+//展开/收缩按钮
+var btn = elm.getElementsByTagName("a");
 
 //控件载入状态
 tree.ready = false;
 
 /**
- * 显示/隐藏所有子树
+ * 收缩所有子级
  */
-tree.toggle = function() {
-    var itemTree = elm.getElementsByTagName("ul"),
-	//显示/隐藏 命令
-	switchs = arguments[0],
-	//树长度
-	itemTreeLength = itemTree.length,
-	showAll;
+tree.hiddenAll = function() {
+    //所有的子树
+    var itemTree = elm.getElementsByTagName("ul");
+    var collectTemp = [];
 
-    //载入所有树
-    showAll = function() {
-	var tLen = itemTree.length;
-	if (arguments[0]) {
-	    tLen -= arguments[0];
-	}
+    for (var i = 0, len = itemTree.length; i < len; i++) {
+	collectTemp[collectTemp.length] = itemTree[i];
+    }
 
-	for (var i = tLen; i--;) {
-	    var _item = itemTree[i];
-	    var box = _item.parentNode;
-	    //_item.parentNode.removeChild(_item);
+    /**
+     * Duff's device
+     */
+    var iterations = Math.floor(collectTemp.length / 8);
+    var leftover = collectTemp.length % 8;
+    var di = 0;
 
-	    if (switchs === "close") {
-		_item.className = "hidden";
-	    } else {
-		_item.className = "";
-	    }
-	    //box.appendChild(_item);
-	}
-    };
+    if (leftover > 0) {
+	do {
+	    collectTemp[di++].className = "hidden";
+	} while (--leftover > 0);
+    }
 
-    showAll();
+    do {
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+	collectTemp[di++].className = "hidden";
+    } while (--iterations > 0);
+
+    collectTemp = null;
 };
 
 /**
  * 初始化
- * 这里使用了后测试循环
- * 优点是可以避免最初终止条件的计算
- * 使运行更快
- * 子级树长度为20001时
  * 
  * @type Function
  */
@@ -136,23 +134,25 @@ tree.init = function(callback) {
 	format(collectTemp[di++]);
     } while (--iterations > 0);
 
+    collectTemp = null;
+
     /**
-     * 添加收缩/展开事件
+     * 添加展开/收缩事件
      */
     var btnHandle = function(e) {
 	e = e || window.event;
 	var target = e.target || e.srcElement;
 
 	if(target.className === "por" && target.nodeName === "SPAN") {
-	    //子级树
+	    //子级
 	    var con = target.parentNode.getElementsByTagName("ul")[0];
 	    if (con) {
 		if (con.className === "hidden") {
-		    // 显示树
+		    //展开
 		    con.className = "";
 		    target.innerHTML = "-";
 		} else {
-		    // 隐藏树
+		    //收缩
 		    con.className = "hidden";
 		    target.innerHTML = "+";
 		}
@@ -164,51 +164,16 @@ tree.init = function(callback) {
 
     tree.EventAdd(elm, "click", btnHandle);
 
-    //隐藏所有子树
+    //收缩所有子级
     var allChildTree = elm.getElementsByTagName("ul")[0];
     allChildTree.className = "hidden";
 
-    return tree.ready = true;
+    callback();
 };
 
-
-/**
- * 测试Function执行时间
- */
-tree.time = function(fn) {
-    //开始时间
-    var start = new Date().getMilliseconds();
-
-    //被测试的Function
-    fn();
-
-    //结束时间
-    var stop = new Date().getMilliseconds();
-
-    //总计耗费的时间
-    var excutionTime = stop - start;
-
-    console.log(excutionTime + "ms");
-    console.log(start + "ms");
-    console.log(stop + "ms");
-};
-
-
-//初始化
-//tree.init(tree.toggle("close"));
 
 var loadHandle = function() {
-    var log = doc.getElementById("log");
-
-    log.innerHTML = "window onload ok!";
-
-    tree.init();
-    log.innerHTML += "<br>tree.init() load ok!";
-
-    if (tree.ready) {
-	tree.toggle("close");
-	log.innerHTML += "<br>tree.toggle('close') load ok!";
-    }
+    tree.init(tree.hiddenAll);
 };
 
-tree.EventAdd(window, "load", loadHandle);
+tree.EventAdd(doc.getElementById("go"), "click", loadHandle);

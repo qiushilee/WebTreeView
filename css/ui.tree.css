@@ -1,6 +1,181 @@
-.por {
-	cursor:pointer;
+/*
+ * reset style
+ * http://qslee.com/
+ *
+ * @author: showbei@gmail.com
+ */
+html {
+    color:#000;
+    background:#FFF
 }
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+hr,
+p,
+blockquote,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+pre,
+form,
+fieldset,
+legend,
+button,
+input,
+textarea,
+th,
+td {
+    margin:0;
+    padding:0
+}
+table {
+    border-collapse:collapse;
+    border-spacing:0
+}
+fieldset,
+img {
+    border:0
+}
+img {
+    vertical-align:bottom;
+}
+address,
+caption,
+cite,
+code,
+dfn,
+em,
+var {
+    font-style:normal;
+    font-weight:normal
+}
+li {
+    list-style:none
+}
+caption {
+    text-align:left
+}
+q:before,
+q:after {
+    content:''
+}
+abbr,
+acronym {
+    border:0;
+    font-variant:normal
+}
+sup {
+    vertical-align:text-top
+}
+sub {
+    vertical-align:text-bottom
+}
+input,
+textarea,
+select {
+    font-family:inherit;
+    font-size:inherit;
+    font-weight:inherit
+}
+input,
+textarea,
+select {
+    *font-size:100%
+}
+a {
+    text-decoration:none;
+}
+
+
+/*
+ * Common style
+ * http://qslee.com/
+ *
+ * @author: showbei@gmail.com
+ */
+
+/* 鼠标指针 .pro {{{ */
+.por {
+	cursor: pointer;
+}
+/* }}} */
+
+/* 隐藏元素 .hidden {{{ */
 .hidden {
-	display:none;
+	display: none;
+}
+/* }}} */
+
+/* 清除浮动 .clear {{{ */
+.clear {
+	clear:both;
+	zoom:1;
+}
+.clear:after {
+	display:block;
+	clear:both;
+	content:"";
+	visibility:hidden;
+	height:0;
+}
+/* }}} */
+
+
+/**
+ * Layout
+ */
+.ui-tree {
+    font:12px/1.5 Tahoma, sans-serif
+}
+
+/*icon image*/
+.ui-tree .hasNode,
+.ui-tree .hasNode-btn,
+.ui-tree .hasNode li {
+    background-image:url(../img/icon.gif);
+}
+
+/*button*/
+.ui-tree .por {
+    display:inline-block;
+    width:7px;
+    height:7px;
+    margin-right:3px;
+    border:1px solid #808080;
+    background-color:#fff;
+    text-align:center;
+    line-height:7px;
+    font-size:10px;
+}
+
+/*list*/
+.ui-tree li {
+    padding-left:1px;
+    background-color:#fff;
+}
+.ui-tree .hasNode {
+    background-repeat:repeat-y;
+    background-position:4px 0px;
+}
+.ui-tree .hasNode li {
+    background-position:-295px 2px;
+}
+.hasNode ul {
+    padding-left:15px;
+}
+.hasNode-btn {
+    display:inline-block;
+    padding-left:18px;
+    background-position:-100px 3px;
+}
+.ui-tree .last {
+    background-image:none;
 }

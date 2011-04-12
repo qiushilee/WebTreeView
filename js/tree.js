@@ -5,6 +5,7 @@
 var tree = tree || {};
 
 
+
 /**
  * DOM高级事件模型
  * 封装了W3C和微软的高级事件模型
@@ -23,6 +24,7 @@ tree.EventAdd = function(obj, type, fn) {
     }
     return false;	
 };
+
 
 
 /**
@@ -51,38 +53,57 @@ tree.ready = false;
 tree.hiddenAll = function() {
     //所有的子树
     var itemTree = elm.getElementsByTagName("ul");
-    var collectTemp = [];
 
+    /**
+     * building a static list of elements to modify
+     */
+    var collectTemp = [];
     for (var i = 0, len = itemTree.length; i < len; i++) {
 	collectTemp[collectTemp.length] = itemTree[i];
     }
 
-    /**
-     * Duff's device
-     */
-    var iterations = Math.floor(collectTemp.length / 8);
-    var leftover = collectTemp.length % 8;
-    var di = 0;
+    var duffDevice = function() {
+	/**
+	 * Duff's Device
+	 */
+	var iterations = Math.floor(collectTemp.length / 8);
+	var leftover = collectTemp.length % 8;
+	var j = 0;
 
-    if (leftover > 0) {
+	if (leftover > 0) {
+	    do {
+		collectTemp[j++].className = "hidden";
+	    } while (--leftover > 0);
+	}
+
 	do {
-	    collectTemp[di++].className = "hidden";
-	} while (--leftover > 0);
-    }
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	    collectTemp[j++].className = "hidden";
+	} while (--iterations > 0);
+    };
 
-    do {
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-	collectTemp[di++].className = "hidden";
-    } while (--iterations > 0);
+    /**
+     * 当有大量数据时使用 Duff's Device
+     * 只是少量数据则使用 for loop
+     */
+    if (collectTemp.length > 3000) {
+	duffDevice();
+    } else {
+	for (var j = 0, len = collectTemp.length; j < len; j++) {
+	    collectTemp[j].className = "hidden";
+	}
+    }
 
     collectTemp = null;
 };
+
+
 
 /**
  * 初始化
@@ -90,6 +111,9 @@ tree.hiddenAll = function() {
  * @type Function
  */
 tree.init = function(callback) {
+    /**
+     * building a static list of elements to modify
+     */
     var collectTemp = [];
     for (var i = 0, len = item.length; i < len; i++) {
 	if (item[i].getElementsByTagName("ul")[0]) {
@@ -107,34 +131,55 @@ tree.init = function(callback) {
 	treeBtn.innerHTML = "+";
 	treeBtn.className = "por";
 
+	_item.className = "hasNode";
+	_item.getElementsByTagName("a")[0].className = "hasNode-btn";
 	_item.insertBefore(treeBtn, _item.childNodes[0]);
     };
 
-    /**
-     * Duff's device
-     */
-    var iterations = Math.floor(collectTemp.length / 8);
-    var leftover = collectTemp.length % 8;
-    var di = 0;
+    var duffDevice = function() {
 
-    if (leftover > 0) {
+	/**
+	 * Duff's Device
+	 */
+	var iterations = Math.floor(collectTemp.length / 8);
+	var leftover = collectTemp.length % 8;
+	var j = 0;
+
+	if (leftover > 0) {
+	    do {
+		format(collectTemp[j++]);
+	    } while (--leftover > 0);
+	}
+
 	do {
-	    format(collectTemp[di++]);
-	} while (--leftover > 0);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	    format(collectTemp[j++]);
+	} while (--iterations > 0);
+    };
+
+
+
+    /**
+     * 当有大量数据时使用 Duff's Device
+     * 只是少量数据则使用 for loop
+     */
+    if (collectTemp.length > 3000) {
+	duffDevice();
+    } else {
+	for (var j = 0, len = collectTemp.length; j < len; j++) {
+	    format(collectTemp[j]);
+	}
     }
 
-    do {
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-	format(collectTemp[di++]);
-    } while (--iterations > 0);
-
     collectTemp = null;
+
+
 
     /**
      * 添加展开/收缩事件
@@ -156,11 +201,9 @@ tree.init = function(callback) {
 		    con.className = "hidden";
 		    target.innerHTML = "+";
 		}
-	    } else {
-		return "该栏目没有下级菜单";
 	    }
 	}
-    }
+    };
 
     tree.EventAdd(elm, "click", btnHandle);
 
@@ -172,8 +215,11 @@ tree.init = function(callback) {
 };
 
 
+
 var loadHandle = function() {
     tree.init(tree.hiddenAll);
 };
 
-tree.EventAdd(doc.getElementById("go"), "click", loadHandle);
+
+//tree.EventAdd(doc.getElementById("go"), "click", loadHandle);
+tree.EventAdd(window, "load", loadHandle);

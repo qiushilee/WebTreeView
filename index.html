@@ -11,52 +11,90 @@
         </style>
     </head>
     <body>
-        <button id="go">Go</button>
-        <ul id="tree" class="ui-tree">
-            <li>
-                <a href="#_">一级栏目</a>
-                <ul>
-                    <li>
-                        <a href="#_">二级栏目</a>
-                        <ul>
-                            <li>
-                                <a href="#_">三级栏目</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#_">二级栏目</a>
-                        <ul>
-                            <li>
-                                <a href="#_">三级栏目</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-            <li class="last">
-                <a href="#_">一级栏目</a>
-                <ul>
-                    <li>
-                        <a href="#_">二级栏目</a>
-                        <ul>
-                            <li>
-                                <a href="#_">三级栏目</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#_">二级栏目</a>
-                        <ul>
-                            <li>
-                                <a href="#_">三级栏目</a>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
 
         <script src="js/tree.js"></script>
+        <script>
+            var webTree = {
+                'id': 'webTree',
+                'treeItem': [
+                {
+                    'id': 1,
+                    'title': '(1)一级栏目',
+                    'href': '#_',
+                    'treeItem': [
+                    {
+                        'pid': '10',
+                        'title': '二级栏目',
+                        'href': '#_'
+                    },
+                    {
+                        'pid': '11',
+                        'title': '二级栏目',
+                        'href': '#_',
+                        'treeItem': [
+                        {
+                            'pid': '110',
+                            'title': '三级栏目',
+                            'href': '#_'
+                        },
+                        {
+                            'pid': '111',
+                            'title': '三级栏目', 'href': '#_',
+                            'treeItem': [
+                            {
+                                'pid': '1110',
+                                'title': '四级栏目',
+                                'href': '#_'
+                            },
+                            {
+                                'pid': '1111',
+                                'title': '四级栏目',
+                                'href': '#_'
+                            }
+                            ]
+                        }
+                        ]
+                    }
+                    ]
+                },
+                {'id': 2, 'title': '(2)一级栏目', 'href': '#_'},
+                {'id': 3, 'title': '(3)一级栏目', 'href': '#_',
+                    'treeItem': [
+                    {
+                        'pid': '30',
+                        'title': '二级栏目',
+                        'href': '#_'
+                    },
+                    {
+                        'pid': '31',
+                        'title': '二级栏目',
+                        'href': '#_'
+                    }
+                    ]
+                }
+                ]
+            }
+
+            treeview('webTree');
+        </script>
+        <!--
+        <script>
+            var bind = function(fn, context) {
+                return function() {
+                    return fn.apply(context, arguments);
+                };
+            };
+
+            var handler2 = function(that) {
+                console.log(that);
+            };
+
+            var elm = document.createElement('div');
+
+            elm.innerHTML = '<span onclick="handler2(this)">hellwo</span>';
+
+            document.body.appendChild(elm);
+        </script>
+        -->
     </body>
 </html>

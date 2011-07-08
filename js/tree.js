@@ -2,224 +2,199 @@
  * TreeView 控件
  * @mod tree
  */
-var tree = tree || {};
+var treeview = function() {
+    /**
+     * 获取数据
+     */
+    this.data = eval(arguments[0]);
 
-
-
-/**
- * DOM高级事件模型
- * 封装了W3C和微软的高级事件模型
- */
-tree.EventAdd = function(obj, type, fn) {
-    if (obj.addEventListener) {
-	obj.addEventListener(type, fn, false);
-	return true;
-    } else if (obj.attachEvent) {
-	obj['e' + type + fn] = fn;
-	obj[type + fn] = function() {
-	    obj['e' + type + fn](window.event);
-	};
-	obj.attachEvent('on' + type, obj[type + fn]);
-	return true;
-    }
-    return false;	
+    create()
+    toggle();
 };
 
 
+/**
+ * 存储树
+ */
+var tree = [];
+
 
 /**
- * 减少作用域长度
+ * 检查是否有子树
  */
-var doc = document;
-
-//树的容器
-var elm = doc.getElementById("tree");
-
-/**
- * item 树的子级
- * 诸如：二级、三级、四级
- */
-var item = elm.getElementsByTagName("li");
-
-//展开/收缩按钮
-var btn = elm.getElementsByTagName("a");
-
-//控件载入状态
-tree.ready = false;
-
-/**
- * 收缩所有子级
- */
-tree.hiddenAll = function() {
-    //所有的子树
-    var itemTree = elm.getElementsByTagName("ul");
-
-    /**
-     * building a static list of elements to modify
-     */
-    var collectTemp = [];
-    for (var i = 0, len = itemTree.length; i < len; i++) {
-	collectTemp[collectTemp.length] = itemTree[i];
-    }
-
-    var duffDevice = function() {
-	/**
-	 * Duff's Device
-	 */
-	var iterations = Math.floor(collectTemp.length / 8);
-	var leftover = collectTemp.length % 8;
-	var j = 0;
-
-	if (leftover > 0) {
-	    do {
-		collectTemp[j++].className = "hidden";
-	    } while (--leftover > 0);
-	}
-
-	do {
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	    collectTemp[j++].className = "hidden";
-	} while (--iterations > 0);
-    };
-
-    /**
-     * 当有大量数据时使用 Duff's Device
-     * 只是少量数据则使用 for loop
-     */
-    if (collectTemp.length > 3000) {
-	duffDevice();
+var hasTree = function(item) {
+    if (item.treeItem) {
+	return true;
     } else {
-	for (var j = 0, len = collectTemp.length; j < len; j++) {
-	    collectTemp[j].className = "hidden";
-	}
+	return false;
     }
-
-    collectTemp = null;
 };
 
 
-
 /**
- * 初始化
- * 
- * @type Function
+ * 生成第一级树的DOM结构
  */
-tree.init = function(callback) {
-    /**
-     * building a static list of elements to modify
-     */
-    var collectTemp = [];
-    for (var i = 0, len = item.length; i < len; i++) {
-	if (item[i].getElementsByTagName("ul")[0]) {
-	    collectTemp[collectTemp.length] = item[i];
-	}
-    }
+var create = function() {
+    var ul = document.createElement("ul");
+    ul.id = this.data.id;
+    ul.className = 'ui-tree';
 
-    /**
-     * 格式化所有子级树
-     * 凡是有子级的加上+/-
-     * 并且加上鼠标指针手型
-     */
-    var format = function(_item) {
-	var treeBtn = doc.createElement("span");
-	treeBtn.innerHTML = "+";
-	treeBtn.className = "por";
+    var format = function(d) {
+	var str = '';
 
-	_item.className = "hasNode";
-	_item.getElementsByTagName("a")[0].className = "hasNode-btn";
-	_item.insertBefore(treeBtn, _item.childNodes[0]);
-    };
-
-    var duffDevice = function() {
-
-	/**
-	 * Duff's Device
-	 */
-	var iterations = Math.floor(collectTemp.length / 8);
-	var leftover = collectTemp.length % 8;
-	var j = 0;
-
-	if (leftover > 0) {
-	    do {
-		format(collectTemp[j++]);
-	    } while (--leftover > 0);
-	}
-
-	do {
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	    format(collectTemp[j++]);
-	} while (--iterations > 0);
-    };
-
-
-
-    /**
-     * 当有大量数据时使用 Duff's Device
-     * 只是少量数据则使用 for loop
-     */
-    if (collectTemp.length > 3000) {
-	duffDevice();
-    } else {
-	for (var j = 0, len = collectTemp.length; j < len; j++) {
-	    format(collectTemp[j]);
-	}
-    }
-
-    collectTemp = null;
-
-
-
-    /**
-     * 添加展开/收缩事件
-     */
-    var btnHandle = function(e) {
-	e = e || window.event;
-	var target = e.target || e.srcElement;
-
-	if(target.className === "por" && target.nodeName === "SPAN") {
-	    //子级
-	    var con = target.parentNode.getElementsByTagName("ul")[0];
-	    if (con) {
-		if (con.className === "hidden") {
-		    //展开
-		    con.className = "";
-		    target.innerHTML = "-";
+	for (var i = 0, len = d.length; i < len; i++) {
+	    if (d[i].id) {
+		str += '<li class="item';
+		if (hasTree(d[i])) {
+		    str += ' haschild" data-index="' + d[i].id +'">';
+		    str += '<span class="c-btn"></span>';
+		    str += '<img src="img/icon-1.gif">';
 		} else {
-		    //收缩
-		    con.className = "hidden";
-		    target.innerHTML = "+";
+		    str += '" data-index="' + d[i].id +'">　';
 		}
+		str += '<a href="' + d[i].href + '">' + d[i].title + '</a></li>';
 	    }
 	}
+
+	return str;
     };
 
-    tree.EventAdd(elm, "click", btnHandle);
+    var getTree = function(d) {
+	for (var i in d.treeItem) {
+	    tree.push(d.treeItem[i]);
+	    getTree(d.treeItem[i]);
+	}
+    };
 
-    //收缩所有子级
-    var allChildTree = elm.getElementsByTagName("ul")[0];
-    allChildTree.className = "hidden";
+    getTree(data);
 
-    callback();
+    ul.innerHTML = format(tree);
+
+    document.body.appendChild(ul);
 };
 
 
 
-var loadHandle = function() {
-    tree.init(tree.hiddenAll);
+/**
+ * 检查elements是否已经包含classname
+ * @param node list
+ * @param string
+ * @return boolen
+ */
+var hasClass = function(elm, cls) {
+    if (typeof elm !== 'object') {
+	if (console.error) {
+	    console.error('no first argument.', 'type must use nodeList.');
+	}
+	return false;
+    } else if (typeof cls !== 'string') {
+	if (console.error) {
+	    console.error('no second argument.', 'type must use string.');
+	}
+	return false;
+    } else {
+	//检查elements是否已经包含classname
+	if (elm.className.match(cls)) {
+	    return true;
+	} else {
+	    return false;
+	}
+    }
 };
 
 
-//tree.EventAdd(doc.getElementById("go"), "click", loadHandle);
-tree.EventAdd(window, "load", loadHandle);
+/*
+ * 事件模型
+ */
+var EventUtil = {
+    addHandler: function(elm, type, handler) {
+	if (elm.addEventListener) {
+	    elm.addEventListener(type, handler, false);
+	} else if (elm.attachEvnet) {
+	    elm.attachEvnet('on' + type, handler);
+	} else {
+	    elm['on' + type] = handler;
+	}
+    }
+};
+
+
+
+/**
+ * 展开/收缩二级栏目
+ */
+var handler = function(that) {
+    var target = that;
+
+    target.className = 'f-btn';
+
+    var liItem = target.parentNode;
+    //判断子级是否已经生成
+    if (liItem.getElementsByTagName('ul')[0]) {
+	var ulBox = liItem.getElementsByTagName('ul')[0];
+	//切换按钮状态和子级菜单的展开/收缩
+	if (hasClass(ulBox, 'hidden')) {
+	    liItem.getElementsByTagName('img')[0].src = 'img/icon-0.gif';
+	    target.className = 'f-btn';
+	    ulBox.className = '';
+	} else {
+	    liItem.getElementsByTagName('img')[0].src = 'img/icon-1.gif';
+	    target.className = 'c-btn';
+	    ulBox.className += ' hidden';
+	}
+    } else {
+	//子级栏目
+	//DOM:
+	//<li>
+	//    <a href="#">first item</a>
+	//    <ul>
+	//        <li>
+	//            <a href="#">second item</a>
+	//        </li>
+	//    </ul>
+	//</li>
+	var str = '';
+	var ul = document.createElement('ul');
+	var index = liItem.getAttribute('data-index');
+	liItem.getElementsByTagName('img')[0].src = 'img/icon-0.gif';
+
+	for (var i = 0, len = tree.length; i < len; i++) {
+	    //tree[i].pid    子级有pid
+	    //tree[i].pid.length === (index + 1).length	子级pid的长度是父级liItem长度+1
+	    //parseInt((tree[i].pid+'').substring(0, index.length), 10) === parseInt(index, 10)    子级为liItem所有
+	    if (tree[i].pid &&
+		    tree[i].pid.length === (index + 1).length &&
+		    parseInt((tree[i].pid+'').substring(0, index.length), 10) === parseInt(index, 10)) {
+
+		str += '<li class="item child-item';
+		if (hasTree(tree[i])) {
+		    str += ' haschild" data-index="' + tree[i].pid + '">';
+		    str += '<span class="c-btn" onclick="handler(this)"></span>';
+		    str += '<img src="img/icon-1.gif">';
+		} else {
+		    str += '" data-index="' + tree[i].pid + '">　';
+		}
+		str += '<a href="' + tree[i].href + '">' + tree[i].title + '</a></li>';
+
+	    }
+	}
+
+	ul.innerHTML = str;
+	liItem.appendChild(ul);
+    }
+};
+
+
+/**
+ * 添加事件
+ */
+var toggle = function() {
+    //item button
+    var btn = document.getElementById(data.id).getElementsByTagName('span');
+
+    for (var i = 0, len = btn.length; i < len; i++) {
+	btn[i].onclick = function() {
+	    handler(this);
+	};
+    }
+};

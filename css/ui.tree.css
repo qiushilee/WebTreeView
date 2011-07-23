@@ -154,8 +154,6 @@ a {
 .ui-tree .item {
     line-height:24px;
 }
-.ui-tree .item ul {
-}
 .ui-tree .child-item {
     margin-left:10px;
 }
@@ -169,5 +167,23 @@ a {
 .ui-tree .last-item {
     margin-top:-2px;
     background-image:none;
+}
+/*}}}*/
+
+
+/*IE Hack {{{*/
+.ui-tree img {
+    *vertical-align:middle;
+}
+.ui-tree .haschild .btn {
+    *margin-top:-2px;
+    *position:relative;
+    *top:-2px;
+    _position:static;
+    _top:0;
+}
+.ui-tree .f-item,
+.ui-tree .haschild {
+    _zoom:1;
 }
 /*}}}*/

@@ -119,35 +119,55 @@ a {
 
 /*Layout style{{{*/
 .ui-tree {
-    font:14px/1.5 '微软雅黑', Tahoma, sans-serif
+    font:12px/1.5 '微软雅黑', Tahoma, sans-serif
 }
 .ui-tree a {
     color:#000;
 }
 
 /*button*/
-.ui-tree .f-btn,
-.ui-tree .c-btn {
+.ui-tree .btn {
     display:inline-block;
-    width:7px;
-    height:7px;
-    margin-right:5px;
+    width:16px;
+    height:22px;
+    background-color:#FFF;
+    cursor:pointer;
 }
+/*Close*/
 .ui-tree .c-btn {
     background-image:url(../img/icon-2.gif);
-    cursor:pointer;
 }
-.ui-tree .f-btn {
+/*Open*/
+.ui-tree .o-btn {
     background-image:url(../img/icon-3.gif);
-    cursor:pointer;
+}
+/*Last Close*/
+.ui-tree .last-item .c-btn {
+    background-image:url(../img/icon-5.gif);
+}
+/*Last Open*/
+.ui-tree .last-item .o-btn {
+    background-image:url(../img/icon-6.gif);
 }
 
 /*list*/
 .ui-tree .item {
-    background:url(../img/line.gif) repeat-y -5px 5px;
     line-height:24px;
 }
+.ui-tree .item ul {
+}
 .ui-tree .child-item {
-    padding-left:10px;
+    margin-left:10px;
+}
+.ui-tree .item .haschild {
+    margin-left:22px;
+}
+.ui-tree .f-item,
+.ui-tree .haschild {
+    background:url(../img/line-0.gif) repeat-y 0 20px;
+}
+.ui-tree .last-item {
+    margin-top:-2px;
+    background-image:none;
 }
 /*}}}*/

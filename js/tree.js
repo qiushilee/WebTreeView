@@ -13,10 +13,10 @@ var treeview = function() {
 };
 
 
-/**
- * 存储树
- */
-var tree = [];
+/*存储树*/
+var tree = [],
+    /*第一级菜单*/
+    firstItem = [];
 
 
 /**
@@ -36,24 +36,34 @@ var hasTree = function(item) {
  */
 var create = function() {
     var ul = document.createElement("ul");
+
     ul.id = this.data.id;
     ul.className = 'ui-tree';
 
-    var format = function(d) {
+
+    var firstItemHtml = function() {
 	var str = '';
 
-	for (var i = 0, len = d.length; i < len; i++) {
-	    if (d[i].id) {
-		str += '<li class="item';
-		if (hasTree(d[i])) {
-		    str += ' haschild" data-index="' + d[i].id +'">';
-		    str += '<span class="c-btn"></span>';
-		    str += '<img src="img/icon-1.gif">';
-		} else {
-		    str += '" data-index="' + d[i].id +'">　';
-		}
-		str += '<a href="' + d[i].href + '">' + d[i].title + '</a></li>';
+	for (var i = 0, len = firstItem.length; i < len; i++) {
+	    //为最后一个菜单追加 .last-item 作样式上的特殊处理
+	    if (firstItem[i].id === len) {
+		str += '<li class="item f-item last-item';
+	    } else {
+		str += '<li class="item f-item';
 	    }
+
+	    //根据是否拥有子菜单做不同的处理
+	    if (hasTree(firstItem[i])) {
+		str += ' haschild" data-index="' + firstItem[i].id +'">';
+		str += '<span class="btn c-btn"></span>';
+		str += '<img src="img/icon-1.gif">';
+	    } else {
+		str += '" data-index="' + firstItem[i].id +'">';
+		str += '<img src="img/line.gif">';
+		str += '<img src="img/icon-4.gif">';
+	    }
+
+	    str += '<a href="' + firstItem[i].href + '">' + firstItem[i].title + '</a></li>';
 	}
 
 	return str;
@@ -68,7 +78,13 @@ var create = function() {
 
     getTree(data);
 
-    ul.innerHTML = format(tree);
+    for (var i = 0, len = tree.length; i < len; i++) {
+	if (tree[i].id) {
+	    firstItem.push(tree[i]);
+	}
+    }
+
+    ul.innerHTML = firstItemHtml();
 
     document.body.appendChild(ul);
 };
@@ -120,29 +136,28 @@ var EventUtil = {
 
 
 
-/**
- * 展开/收缩二级栏目
- */
 var handler = function(that) {
     var target = that;
 
-    target.className = 'f-btn';
+    target.className = 'btn o-btn';
 
     var liItem = target.parentNode;
+    //展开/收缩二级栏目
     //判断子级是否已经生成
     if (liItem.getElementsByTagName('ul')[0]) {
 	var ulBox = liItem.getElementsByTagName('ul')[0];
 	//切换按钮状态和子级菜单的展开/收缩
 	if (hasClass(ulBox, 'hidden')) {
 	    liItem.getElementsByTagName('img')[0].src = 'img/icon-0.gif';
-	    target.className = 'f-btn';
+	    target.className = 'btn o-btn';
 	    ulBox.className = '';
 	} else {
 	    liItem.getElementsByTagName('img')[0].src = 'img/icon-1.gif';
-	    target.className = 'c-btn';
+	    target.className = 'btn c-btn';
 	    ulBox.className += ' hidden';
 	}
     } else {
+	//生成子级菜单
 	//子级栏目
 	//DOM:
 	//<li>
@@ -153,9 +168,11 @@ var handler = function(that) {
 	//        </li>
 	//    </ul>
 	//</li>
-	var str = '';
-	var ul = document.createElement('ul');
-	var index = liItem.getAttribute('data-index');
+	var str = '',
+	    childItem = [],
+	    ul = document.createElement('ul'),
+	    index = liItem.getAttribute('data-index');
+
 	liItem.getElementsByTagName('img')[0].src = 'img/icon-0.gif';
 
 	for (var i = 0, len = tree.length; i < len; i++) {
@@ -165,18 +182,32 @@ var handler = function(that) {
 	    if (tree[i].pid &&
 		    tree[i].pid.length === (index + 1).length &&
 		    parseInt((tree[i].pid+'').substring(0, index.length), 10) === parseInt(index, 10)) {
+		childItem.push(tree[i]);
+	    }
+	}
 
-		str += '<li class="item child-item';
-		if (hasTree(tree[i])) {
-		    str += ' haschild" data-index="' + tree[i].pid + '">';
-		    str += '<span class="c-btn" onclick="handler(this)"></span>';
+	for (var i = 0, len = childItem.length; i < len; i++) {
+		//为最后一个菜单追加 .last-item 作样式上的特殊处理
+		if (firstItem[i].id === len) {
+		    str += '<li class="item child-item last-item';
+		} else {
+		    str += '<li class="item child-item';
+		}
+		if (hasTree(childItem[i])) {
+		    str += ' haschild" data-index="' + childItem[i].pid + '">';
+		    str += '<span class="btn c-btn" onclick="handler(this)"></span>';
 		    str += '<img src="img/icon-1.gif">';
 		} else {
-		    str += '" data-index="' + tree[i].pid + '">　';
+		    str += '" data-index="' + childItem[i].pid + '">　';
+		    if (firstItem[i].id === len) {
+			str += '<img src="img/line-2.gif">';
+		    } else {
+			str += '<img src="img/line-1.gif">';
+		    }
+		    str += '<img src="img/icon-4.gif">';
 		}
-		str += '<a href="' + tree[i].href + '">' + tree[i].title + '</a></li>';
+		str += '<a href="' + childItem[i].href + '">' + childItem[i].title + '</a></li>';
 
-	    }
 	}
 
 	ul.innerHTML = str;
